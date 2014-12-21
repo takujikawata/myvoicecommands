@@ -1,0 +1,25 @@
+topic: ~SayVoiceCommand()
+language: enu
+
+
+concept:(desc) [explain "how to use"]
+concept:(next) [next]
+concept:(prev) [previous]
+concept:(restart) [restart]
+concept:(end) [quit finish terminate]
+
+u:(e:MyVoiceCommands/sayIntroEvent) This application explains the voice commands for each installed applications. You can hear the description of an application by touching head while robot explains it. This will finish when it described all installed application or hear keyworad "quit" ^start(myvoicecommands-88e041/intro_finished_behavior)
+
+u:(e:MyVoiceCommands/sayAppNameEvent) App name \pau=800\ ["$MyVoiceCommands/appName==none undefined" "$MyVoiceCommands/appName"] ^start(myvoicecommands-88e041/say_appname_finished_behavior) 
+
+u:(e:MyVoiceCommands/sayVoiceCommandsEvent) The voice commands are \pau=800\ $MyVoiceCommands/voiceCommands ^start(myvoicecommands-88e041/say_voice_commands_finished_behavior)
+
+u:(e:MyVoiceCommands/sayDescriptionEvent) The explanation of the app \pau=800\ ["$MyVoiceCommands/description==none no explanation found" "$MyVoiceCommands/description"] ^start(myvoicecommands-88e041/say_description_finished_behavior) 
+
+u:(e:MyVoiceCommands/endOfAppEvent) \pau=800\ reached to the bottom of the app list. Finishing now. ^start(myvoicecommands-88e041/end_of_app_behavior) 
+
+u:(~desc) ^start(myvoicecommands-88e041/interrupted_behavior)
+u:(~next) ^start(myvoicecommands-88e041/goto_next_app_behavior)　
+u:(~prev) ^start(myvoicecommands-88e041/goto_previous_app_behavior)　
+u:(~end) Terminating ^start(myvoicecommands-88e041/end_of_app_behavior)
+

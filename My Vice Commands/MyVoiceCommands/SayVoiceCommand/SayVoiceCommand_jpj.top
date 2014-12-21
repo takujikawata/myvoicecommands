@@ -1,0 +1,25 @@
+topic: ~SayVoiceCommand()
+language: jpj
+
+concept:(desc) [せつめい つかいかた]
+concept:(next) [つぎ つぎのあぷり]
+concept:(prev) [まえ まえのあぷり]
+concept:(restart) [さいしょから]
+concept:(end) [おわり しゅうりょう 終了 終わり やめる もういいよ]
+
+u:(e:MyVoiceCommands/sayIntroEvent) インストールされているアプリの音声コマンドを説明します。　頭をタッチするとさらに詳しい説明を聞くことができます。
+このアプリはすべてのアプリの説明を終了するか、「終わり」 というキーワードを聞くと終了します ^start(myvoicecommands-88e041/intro_finished_behavior)
+
+u:(e:MyVoiceCommands/sayAppNameEvent) アプリめい \pau=800\ ["$MyVoiceCommands/appName==none アプリめいなし" "$MyVoiceCommands/appName"] ^start(myvoicecommands-88e041/say_appname_finished_behavior) 
+
+u:(e:MyVoiceCommands/sayVoiceCommandsEvent) 起動コマンド \pau=800\ $MyVoiceCommands/voiceCommands ^start(myvoicecommands-88e041/say_voice_commands_finished_behavior)
+
+u:(e:MyVoiceCommands/sayDescriptionEvent) アプリの説明 \pau=800\ ["$MyVoiceCommands/description==none 説明はありませんでした" "$MyVoiceCommands/description"] ^start(myvoicecommands-88e041/say_description_finished_behavior) 
+
+u:(e:MyVoiceCommands/endOfAppEvent) \pau=800\ アプリは以上です。^start(myvoicecommands-88e041/end_of_app_behavior) 
+
+u:(~desc) ^start(myvoicecommands-88e041/interrupted_behavior)
+u:(~next) ^start(myvoicecommands-88e041/goto_next_app_behavior)　
+u:(~prev) ^start(myvoicecommands-88e041/goto_previous_app_behavior)　
+u:(~end) 終了します ^start(myvoicecommands-88e041/end_of_app_behavior)
+

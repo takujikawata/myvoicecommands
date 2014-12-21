@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<package version="0.0.2" uuid="myvoicecommands-88e041">
+ <names>
+  <name lang="en_US">MyVoiceCommands</name>
+  <name lang="ja_JP">マイアプリコマンド</name>
+ </names>
+ <descriptions>
+  <description lang="en_US">This app explains the voice commands for each installed apps. You can hear the description of an app by touching head while robot explains the app. App will finish when it described all installed apps or hear "quit"
+ </description>
+  <description lang="ja_JP">インストールされているアプリの音声コマンドを説明します。　頭をタッチすることで現在説明しているアプリの詳しい説明を聞くことができます。
+このアプリはすべてのインストールされているアプリの説明を終了するか「終わり」というキーワードを聞くと終了します</description>
+ </descriptions>
+ <supportedLanguages>
+  <language>en_US</language>
+  <language>ja_JP</language>
+ </supportedLanguages>
+ <descriptionLanguages>
+  <language>en_US</language>
+  <language>ja_JP</language>
+ </descriptionLanguages>
+ <contents>
+  <behaviorContent path="behavior_1">
+   <nature>interactive</nature>
+   <triggerSentences>
+    <sentence lang="en_US">voice command</sentence>
+    <sentence lang="ja_JP">音声コマンド</sentence>
+    <sentence lang="ja_JP">ぼいすこまんど</sentence>
+    <sentence lang="ja_JP">こえでできること</sentence>
+   </triggerSentences>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="intro_finished_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="say_appname_finished_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="say_voice_commands_finished_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="say_description_finished_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="goto_next_app_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="goto_previous_app_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="interrupted_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <behaviorContent path="end_of_app_behavior">
+   <nature>interactive</nature>
+   <permissions/>
+  </behaviorContent>
+  <dialogContent typeVersion="1.0" topicName="SayVoiceCommand">
+   <topic path="SayVoiceCommand/SayVoiceCommand_enu.top" language="en_US"/>
+   <topic path="SayVoiceCommand/SayVoiceCommand_jpj.top" language="ja_JP"/>
+  </dialogContent>
+ </contents>
+ <requirements>
+  <naoqiRequirement minVersion="2.1.2.17"/>
+  <robotRequirement/>
+ </requirements>
+</package>

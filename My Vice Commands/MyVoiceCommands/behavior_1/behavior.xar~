@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ChoregrapheProject xmlns="http://www.aldebaran-robotics.com/schema/choregraphe/project.xsd" xar_version="3">
+    <Box name="root" id="-1" localization="8" tooltip="Root box of Choregraphe&apos;s behavior. Highest level possible." x="0" y="0">
+        <bitmap>media/images/box/root.png</bitmap>
+        <script language="4">
+            <content>
+                <![CDATA[]]>
+</content>
+        </script>
+        <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+        <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+        <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+        <Input name="MyVoiceCommands/reachedToEndOfAppEvent" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/reachedToEndOfAppEvent" inner="1" tooltip="MyVoiceCommands/reachedToEndOfAppEvent desc" id="11" />
+        <Input name="MyVoiceCommands/IntroFinished" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/IntroFinished" inner="1" tooltip="MyVoiceCommands/IntroFinished desc" id="4" />
+        <Input name="MyVoiceCommands/sayAppNameFinished" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/sayAppNameFinished" inner="1" tooltip="MyVoiceCommands/sayAppNameFinished desc" id="5" />
+        <Input name="MyVoiceCommands/sayVoiceCommandsFinished" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/sayVoiceCommandsFinished" inner="1" tooltip="MyVoiceCommands/sayVoiceCommandsFinished desc" id="6" />
+        <Input name="MyVoiceCommands/sayDescriptionFinished" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/sayDescriptionFinished" inner="1" tooltip="MyVoiceCommands/sayDescriptionFinished desc" id="7" />
+        <Input name="MyVoiceCommands/requestNextAppEvent" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/requestNextAppEvent" inner="1" tooltip="MyVoiceCommands/requestNextAppEvent desc" id="8" />
+        <Input name="MyVoiceCommands/requestPreviousAppEvent" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/requestPreviousAppEvent" inner="1" tooltip="MyVoiceCommands/requestPreviousAppEvent desc" id="9" />
+        <Input name="MyVoiceCommands/requestInterruptEvent" type="0" type_size="1" nature="4" stm_value_name="MyVoiceCommands/requestInterruptEvent" inner="1" tooltip="MyVoiceCommands/requestInterruptEvent desc" id="10" />
+        <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="12" />
+        <Timeline enable="0">
+            <BehaviorLayer name="behavior_layer1">
+                <BehaviorKeyframe name="keyframe1" index="1">
+                    <Diagram>
+                        <Box name="VoiceCommandMain" id="1" localization="8" tooltip="This box contains a basic python script and can be used to create any python script box you would like.&#x0A;&#x0A;To edit its script, double-click on it." x="482" y="303">
+                            <bitmap>media/images/box/box-python-script.png</bitmap>
+                            <script language="4">
+                                <content>
+                                    <![CDATA[import threading
+import time
+
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+        self.commandList = []
+        self.index = 0
+        self.sem = threading.Semaphore(0)
+        self.interrupted = False
+
+    def onLoad(self):
+        self.packageManager = ALProxy("PackageManager")
+        self.memory = ALProxy("ALMemory")
+        self.memory.declareEvent("sayIntro")
+        self.memory.declareEvent("sayAppNameEvent")
+        self.memory.declareEvent("sayVoiceCommands")
+        self.memory.declareEvent("sayDescription")
+        self.memory.declareEvent("MyVoiceCommands/IntroFinished")
+        self.memory.declareEvent("MyVoiceCommands/sayAppNameFinished")
+        self.memory.declareEvent("MyVoiceCommands/sayVoiceCommandsFinished")
+        self.memory.declareEvent("MyVoiceCommands/sayDescriptionFinished")
+        self.memory.declareEvent("MyVoiceCommands/requestNextAppEvent")
+        self.memory.declareEvent("MyVoiceCommands/requestPreviousAppEvent")
+        self.memory.declareEvent("MyVoiceCommands/requestInterruptEvent")
+        self.memory.declareEvent("MyVoiceCommands/reachedToEndOfAppEvent")
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_onAnimationSayInitialized(self):
+        self.sem.release()
+
+    def onInput_onStart(self, loc):
+        packageList = self.packageManager.packages()
+        for package in packageList:
+            voiceCommand = {"desc": ""}
+            for packageInfo in package:
+                if packageInfo[0] == "langToName" :
+                    for name in packageInfo[1]:
+                        if name[0] == loc:
+                            voiceCommand["name"] = name[1]
+                            break
+
+                if packageInfo[0] == "langToDesc" :
+                    for desc in packageInfo[1] :
+                        if desc[0] == loc:
+                            voiceCommand["description"] = desc[1]
+                            #self.logger.info("### description:%s : %s\n" % (desc[0], desc[1]))
+                            break
+
+                if packageInfo[0] == "behaviors" :
+                    for behavior in packageInfo[1]:
+                        for behaviorInfo in behavior:
+                            if behaviorInfo[0] == "langToTriggerSentences":
+                                for triggerSentences in behaviorInfo[1] :
+                                    if triggerSentences[0] == loc :
+                                        voiceCommand["sentences"] = triggerSentences[1]
+                                        break
+
+            if "sentences" in voiceCommand:
+                self.commandList.append(voiceCommand)
+        #debug
+        if False:
+            for command in self.commandList :
+                self.logger.info("####################:%s" % command["description"])
+                for sentence in command["sentences"]:
+                    self.logger.info("command %s" % sentence)
+
+        self.sem.acquire()
+
+        self.memory.insertData("VoiceCommandAppName", "")
+        self.memory.insertData("VoiceCommandVoiceCommands", "")
+        self.memory.insertData("VoiceCommandDescription", "")
+        self.memory.raiseEvent("MyVoiceCommands/sayIntroEvent",1)
+
+    def sayAppName(self):
+        if self.index < len(self.commandList) :
+            if "name" in self.commandList[self.index] :
+                self.memory.insertData("VoiceCommandAppName", self.commandList[self.index].get("name"))
+            else:
+                self.memory.insertData("VoiceCommandAppName", "せっていなし")
+
+            voiceCommands = ""
+            for c in self.commandList[self.index]["sentences"]:
+                voiceCommands = voiceCommands + c + "\\pau=500\\"
+
+            self.memory.insertData("MyVoiceCommands/voiceCommands", voiceCommands)
+
+            if "description" in self.commandList[self.index] :
+                self.memory.insertData("VoiceCommandDescription", self.commandList[self.index].get("description"))
+            else:
+                self.memory.insertData("VoiceCommandDescription", "説明はありませんでした")
+
+            self.memory.raiseEvent("MyVoiceCommands/sayAppNameEvent",1)
+
+    def sayVoiceCommands(self):
+        self.memory.raiseEvent("MyVoiceCommands/sayVoiceCommandsEvent",1)
+
+    def endOfApp(self):
+        self.memory.raiseEvent("MyVoiceCommands/endOfAppEvent", 1)
+
+    def nextApp(self):
+        self.index = self.index + 1
+        if self.index < len(self.commandList) :
+            self.sayAppName()
+        else:
+            self.endOfApp()
+
+
+    def previousApp(self):
+        self.index = self.index - 1
+        if self.index < 0:
+            self.index = len(self.commandList) - 1
+
+        self.sayAppName()
+
+    def checkInterrupted(self):
+        if self.interrupted == True:
+            self.interrupted = False
+            return True
+        else:
+            return False
+
+    def onInput_IntroFinished(self):
+        time.sleep(1)
+        if self.checkInterrupted() == False:
+            self.sayAppName()
+
+
+    def onInput_sayAppNameFinished(self):
+        time.sleep(1)
+        if self.checkInterrupted() == False:
+            self.sayVoiceCommands()
+
+    def onInput_sayVoiceCommandsFinished(self):
+        time.sleep(3)
+        if self.checkInterrupted() == False:
+            self.nextApp()
+
+    def onInput_sayDescriptionFinished(self):
+        time.sleep(1)
+
+    def onInput_onGotoNextApp(self):
+        self.nextApp()
+
+
+    def onInput_onGotoPreviousApp(self):
+        self.previousApp()
+
+    def onInput_onInterrupt(self):
+        self.interrupted = True
+
+    def onInput_onStop(self):
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+                            </script>
+                            <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                            <Input name="onStart" type="3" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                            <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                            <Input name="onAnimationSayInitialized" type="1" type_size="1" nature="1" inner="0" tooltip="" id="4" />
+                            <Input name="IntroFinished" type="1" type_size="1" nature="1" inner="0" tooltip="" id="5" />
+                            <Input name="sayAppNameFinished" type="1" type_size="1" nature="1" inner="0" tooltip="" id="6" />
+                            <Input name="sayVoiceCommandsFinished" type="1" type_size="1" nature="1" inner="0" tooltip="" id="7" />
+                            <Input name="sayDescriptionFinished" type="1" type_size="1" nature="1" inner="0" tooltip="" id="8" />
+                            <Input name="onGotoNextApp" type="1" type_size="1" nature="1" inner="0" tooltip="" id="9" />
+                            <Input name="onGotoPreviousApp" type="1" type_size="1" nature="1" inner="0" tooltip="" id="10" />
+                            <Input name="onInterrupt" type="1" type_size="1" nature="1" inner="0" tooltip="" id="11" />
+                            <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="12" />
+                            <Output name="sayAppName" type="3" type_size="1" nature="2" inner="0" tooltip="" id="13" />
+                            <Output name="sayVoiceCommands" type="0" type_size="1" nature="2" inner="0" tooltip="" id="14" />
+                            <Output name="sayDescription" type="3" type_size="1" nature="2" inner="0" tooltip="" id="15" />
+                            <Output name="sayIntro" type="1" type_size="1" nature="2" inner="0" tooltip="" id="16" />
+                        </Box>
+                        <Box name="GetLocale" id="2" localization="8" tooltip="This box contains a basic python script and can be used to create any python script box you would like.&#x0A;&#x0A;To edit its script, double-click on it." x="291" y="134">
+                            <bitmap>media/images/box/box-python-script.png</bitmap>
+                            <script language="4">
+                                <content>
+                                    <![CDATA[
+class MyClass(GeneratedClass):
+    def __init__(self):
+        GeneratedClass.__init__(self)
+
+    def onLoad(self):
+        #put initialization code here
+        pass
+
+    def onUnload(self):
+        #put clean-up code here
+        pass
+
+    def onInput_onStart(self):
+        #self.onStopped() #activate the output of the box
+        tts = ALProxy("ALTextToSpeech")
+        self.output(tts.locale())
+
+        pass
+
+    def onInput_onStop(self):
+        from babel import Locale
+
+        self.onUnload() #it is recommended to reuse the clean-up as the box is stopped
+        self.onStopped() #activate the output of the box]]>
+</content>
+                            </script>
+                            <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                            <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                            <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                            <Output name="output" type="3" type_size="1" nature="2" inner="0" tooltip="" id="4" />
+                        </Box>
+                        <Box name="SayVoiceComand" id="4" localization="8" tooltip="" x="472" y="35">
+                            <dialogFile>../SayVoiceCommand/SayVoiceCommand.dlg</dialogFile>
+                            <bitmap>media/images/box/box-dialog.png</bitmap>
+                            <script language="4">
+                                <content>
+                                    <![CDATA[]]>
+</content>
+                            </script>
+                            <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                            <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Box behavior starts when a signal is received on this input." id="2" />
+                            <Input name="onStop" type="1" type_size="1" nature="3" inner="0" tooltip="Box behavior stops when a signal is received on this input." id="3" />
+                            <Output name="onStopped" type="1" type_size="1" nature="1" inner="0" tooltip="Signal sent when box behavior is finished." id="4" />
+                        </Box>
+                        <Box name="Localized Text" id="5" localization="8" tooltip="Send on the output the text associated with the robot&apos;s current voice language.&#x0A;You can display and edit the text associated with any language by&#x0A;selecting the language in the combobox.&#x0A;&#x0A;!!Warning!! The text sent on the output is NOT the displayed one but the one&#x0A;associated with the robot&apos;s current voice language." plugin="localizationbox_plugin" x="85" y="426">
+                            <bitmap>media/images/box/interaction/vocabulary.png</bitmap>
+                            <script language="4">
+                                <content>
+                                    <![CDATA[# /!\ Generated content. Do not edit!
+class MyClass(GeneratedClass):
+	def __init__(self):
+		try: # disable autoBind
+			GeneratedClass.__init__(self, False)
+		except TypeError: # if NAOqi < 1.14
+			GeneratedClass.__init__( self )
+
+		self.tts = ALProxy("ALTextToSpeech")
+		self.sentences = {
+			"Chinese" : " ^start(animations/Stand/Gestures/Hey_1) 你好 ^wait(animations/Stand/Gestures/Hey_1) ",
+			"English" : " ^start(animations/Stand/Gestures/Hey_1) Hello ^wait(animations/Stand/Gestures/Hey_1) ",
+			"French" : " ^start(animations/Stand/Gestures/Hey_1) Bonjour ^wait(animations/Stand/Gestures/Hey_1) ",
+			"German" : " ^start(animations/Stand/Gestures/Hey_1) Hallo ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Italian" : " ^start(animations/Stand/Gestures/Hey_1) Ciao ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Japanese" : " ^start(animations/Stand/Gestures/Hey_1) こんにちは ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Korean" : " ^start(animations/Stand/Gestures/Hey_1) 안녕하세요 ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Portuguese" : " ^start(animations/Stand/Gestures/Hey_1) Olá ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Brazilian" : " ^start(animations/Stand/Gestures/Hey_1) Olá ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Spanish" : " ^start(animations/Stand/Gestures/Hey_1) Hola ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Arabic" : " ^start(animations/Stand/Gestures/Hey_1) مرحبا ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Polish" : " ^start(animations/Stand/Gestures/Hey_1) Cześć ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Czech" : " ^start(animations/Stand/Gestures/Hey_1) Ahoj ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Dutch" : " ^start(animations/Stand/Gestures/Hey_1) Hallo ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Danish" : " ^start(animations/Stand/Gestures/Hey_1) Hej ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Finnish" : " ^start(animations/Stand/Gestures/Hey_1) Hei ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Swedish" : " ^start(animations/Stand/Gestures/Hey_1) Hallå ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Russian" : " ^start(animations/Stand/Gestures/Hey_1) Привет ^wait(animations/Stand/Gestures/Hey_1) ",
+			"Turkish" : " ^start(animations/Stand/Gestures/Hey_1) Merhaba ^wait(animations/Stand/Gestures/Hey_1) "
+		}
+
+	def onInput_onStart(self):
+		sDefaultLang = self.tts.getLanguage()
+		self.onStopped(self.sentences[sDefaultLang])]]>
+</content>
+                            </script>
+                            <pluginContent>
+                                <chinese>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) 你好 ^wait(animations/Stand/Gestures/Hey_1)]]>
+</chinese>
+                                <english>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hello ^wait(animations/Stand/Gestures/Hey_1)]]>
+</english>
+                                <french>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Bonjour ^wait(animations/Stand/Gestures/Hey_1)]]>
+</french>
+                                <german>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hallo ^wait(animations/Stand/Gestures/Hey_1)]]>
+</german>
+                                <italian>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Ciao ^wait(animations/Stand/Gestures/Hey_1)]]>
+</italian>
+                                <japanese>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) こんにちは ^wait(animations/Stand/Gestures/Hey_1)]]>
+</japanese>
+                                <korean>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) 안녕하세요 ^wait(animations/Stand/Gestures/Hey_1)]]>
+</korean>
+                                <portuguese>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Olá ^wait(animations/Stand/Gestures/Hey_1)]]>
+</portuguese>
+                                <brazilian>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Olá ^wait(animations/Stand/Gestures/Hey_1)]]>
+</brazilian>
+                                <spanish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hola ^wait(animations/Stand/Gestures/Hey_1)]]>
+</spanish>
+                                <arabic>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) مرحبا ^wait(animations/Stand/Gestures/Hey_1)]]>
+</arabic>
+                                <polish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Cześć ^wait(animations/Stand/Gestures/Hey_1)]]>
+</polish>
+                                <czech>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Ahoj ^wait(animations/Stand/Gestures/Hey_1)]]>
+</czech>
+                                <dutch>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hallo ^wait(animations/Stand/Gestures/Hey_1)]]>
+</dutch>
+                                <danish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hej ^wait(animations/Stand/Gestures/Hey_1)]]>
+</danish>
+                                <finnish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hei ^wait(animations/Stand/Gestures/Hey_1)]]>
+</finnish>
+                                <swedish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Hallå ^wait(animations/Stand/Gestures/Hey_1)]]>
+</swedish>
+                                <russian>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Привет ^wait(animations/Stand/Gestures/Hey_1)]]>
+</russian>
+                                <turkish>
+                                    <![CDATA[^start(animations/Stand/Gestures/Hey_1) Merhaba ^wait(animations/Stand/Gestures/Hey_1)]]>
+</turkish>
+                                <language>1</language>
+                            </pluginContent>
+                            <Input name="onLoad" type="1" type_size="1" nature="0" inner="1" tooltip="Signal sent when diagram is loaded." id="1" />
+                            <Input name="onStart" type="1" type_size="1" nature="2" inner="0" tooltip="Data is sent on the output when this input is stimulated." id="2" />
+                            <Output name="onStopped" type="3" type_size="1" nature="1" inner="0" tooltip="Data sent when asked." id="3" />
+                        </Box>
+                        <Link inputowner="2" indexofinput="2" outputowner="0" indexofoutput="2" />
+                        <Link inputowner="4" indexofinput="2" outputowner="0" indexofoutput="2" />
+                        <Link inputowner="1" indexofinput="5" outputowner="0" indexofoutput="4" />
+                        <Link inputowner="1" indexofinput="6" outputowner="0" indexofoutput="5" />
+                        <Link inputowner="1" indexofinput="7" outputowner="0" indexofoutput="6" />
+                        <Link inputowner="1" indexofinput="8" outputowner="0" indexofoutput="7" />
+                        <Link inputowner="1" indexofinput="9" outputowner="0" indexofoutput="8" />
+                        <Link inputowner="1" indexofinput="10" outputowner="0" indexofoutput="9" />
+                        <Link inputowner="1" indexofinput="11" outputowner="0" indexofoutput="10" />
+                        <Link inputowner="1" indexofinput="3" outputowner="0" indexofoutput="11" />
+                        <Link inputowner="0" indexofinput="12" outputowner="1" indexofoutput="12" />
+                        <Link inputowner="1" indexofinput="2" outputowner="2" indexofoutput="4" />
+                    </Diagram>
+                </BehaviorKeyframe>
+            </BehaviorLayer>
+        </Timeline>
+    </Box>
+</ChoregrapheProject>
