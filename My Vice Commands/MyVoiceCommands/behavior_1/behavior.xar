@@ -207,6 +207,7 @@ class MyClass(GeneratedClass):
 
 
     def onInput_onPreviousApp(self):
+        self.logger.info("next...")
         self.previousApp()
 
     def onInput_onInterrupt(self):

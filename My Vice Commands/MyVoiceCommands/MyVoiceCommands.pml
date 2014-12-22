@@ -3,14 +3,6 @@
     <Manifest src="manifest.xml" />
     <BehaviorDescriptions>
         <BehaviorDescription name="behavior" src="behavior_1" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="intro_finished_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="say_appname_finished_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="say_voice_commands_finished_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="say_description_finished_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="goto_next_app_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="goto_previous_app_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="interrupted_behavior" xar="behavior.xar" />
-        <BehaviorDescription name="behavior" src="end_of_app_behavior" xar="behavior.xar" />
     </BehaviorDescriptions>
     <Dialogs>
         <Dialog name="SayVoiceCommand" src="SayVoiceCommand/SayVoiceCommand.dlg" />

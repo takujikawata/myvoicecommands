@@ -29,38 +29,6 @@
    </triggerSentences>
    <permissions/>
   </behaviorContent>
-  <behaviorContent path="intro_finished_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="say_appname_finished_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="say_voice_commands_finished_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="say_description_finished_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="goto_next_app_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="goto_previous_app_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="interrupted_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
-  <behaviorContent path="end_of_app_behavior">
-   <nature>interactive</nature>
-   <permissions/>
-  </behaviorContent>
   <dialogContent typeVersion="1.0" topicName="SayVoiceCommand">
    <topic path="SayVoiceCommand/SayVoiceCommand_enu.top" language="en_US"/>
    <topic path="SayVoiceCommand/SayVoiceCommand_jpj.top" language="ja_JP"/>
